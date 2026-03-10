@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 
 function AddTransaction({ addTransaction }) {
   const [text, setText] = useState('');
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState('');
 
   const onSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted with:", text, amount);
 
     // Basic validation: Don't add if text is empty or amount is 0
-    if (text.trim() === '' || amount === 0) {
+    if (!text.trim() || !amount) {
       alert('Please add a description and an amount');
       return;
     }
@@ -48,7 +48,7 @@ function AddTransaction({ addTransaction }) {
             type="number" 
             value={amount} 
             onChange={(e) => setAmount(e.target.value)} 
-            placeholder = "Enter amount..."
+            placeholder = "Enter amount (negative for expenses) ..."
             className = "w-full border border-gray-300 rounded p-2 mt-1"
           />
         </div>
