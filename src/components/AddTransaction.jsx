@@ -1,39 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function AddTransaction({ addTransaction }) {
+function AddTransaction({ addTransaction, editingTransaction, updateTransaction }) {
   const [text, setText] = useState('');
   const [amount, setAmount] = useState('');
 
+  //EFFECT: When editingTransaction changes (user clicks edit), fill the form
+  useEffect(() => {
+    if (editingTransaction){
+      setText(editingTransaction.text);
+      setAmount(editingTransaction.amount);
+
+    }else{
+      setText('');
+      setAmount('');
+    }
+  }, [editingTransaction])
+  
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted with:", text, amount);
 
     // Basic validation: Don't add if text is empty or amount is 0
-    if (!text.trim() || !amount) {
+    if (!text.trim() || amount === '') {
       alert('Please add a description and an amount');
       return;
     }
 
-    const newTransaction = {
-      id: Math.floor(Math.random() * 1000000),
-      text,
-      amount: parseFloat(amount)
-    };
+    if (editingTransaction) {
+      // Logic for UPDATING
+      updateTransaction({
+        ...editingTransaction,
+        text,
+        amount:parseFloat(amount)
+      });
+    } else {
+      // Logic for ADDING
+      const newTransaction = {
+        id: Math.floor(Math.random() * 1000000),
+        text,
+        amount: parseFloat(amount)
+      };
+      addTransaction(newTransaction);
 
-    // This calls the function in App.jsx
-    addTransaction(newTransaction); 
+    }
 
-    // Reset fields
+    //Reset fields
     setText('');
-    setAmount(0);
+    setAmount('');
+
   };
 
   return (
     <div>
-      <h3 className="text-lg font-semibold text-gray-700 tracking-wide mb-4 uppercase">Add new transaction</h3>
+
+      <h3 className="text-lg font-semibold text-gray-700 tracking-wide mb-4 uppercase">
+        {editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
+      </h3>
+
       <form onSubmit={onSubmit} className="space-y-4">
+
         <div>
-          <label>Description</label>
+          <label className = "block text-sm font-medium text-gray-600">Description</label>
           <input 
             type="text" 
             value={text} 
@@ -42,8 +68,9 @@ function AddTransaction({ addTransaction }) {
             className = "w-full border border-gray-300 rounded p-2 mt-1"
           />
         </div>
+
         <div>
-          <label>Amount</label>
+          <label className = "block text-sm font-medium text-gray-600">Amount</label>
           <input 
             type="number" 
             value={amount} 
@@ -52,7 +79,15 @@ function AddTransaction({ addTransaction }) {
             className = "w-full border border-gray-300 rounded p-2 mt-1"
           />
         </div>
-        <button type="submit" className='w-full bg-blue-600 text-white py-2 mt-4 rounded hover:bg-blue-700 transition'>Add transaction</button>
+
+        <button 
+          type="submit" 
+          className={`w-full text-white py-2 mt-4 rounded transition ${
+            editingTransaction ? 'bg-orange-500 hover:bg-orange-600' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {editingTransaction ? 'Update Transaction' : 'Add Transaction'}
+        </button>
       </form>
     </div>
   );
